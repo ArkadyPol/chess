@@ -1,9 +1,10 @@
 import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { RootState } from '../../app/store'
+import { AppThunk, RootState } from '../../app/store'
 import { createBoard } from '../../utils/createBoard'
 
 const initialState = {
   board: createBoard(),
+  selected: null as null | CellType,
   turn: 'white' as 'white' | 'black',
 }
 
@@ -17,10 +18,14 @@ export const gameSlice = createSlice({
         state.board[coords].available = true
       })
     },
+    setSelected: (state, action: PayloadAction<CellType>) => {
+      state.selected = action.payload
+    },
     turnOffHighlight: state => {
       for (let key in state.board) {
         state.board[key].available = false
       }
+      state.selected = null
     },
     move: (
       state,
@@ -38,14 +43,59 @@ export const gameSlice = createSlice({
           state.turn = 'white'
           break
       }
+      state.selected = null
     },
   },
 })
 
 export const selectBoard = (state: RootState) => state.game.board
+export const selectTurn = (state: RootState) => state.game.turn
+export const getSelected = (state: RootState) => state.game.selected
 export const selectBoardAsArray = createSelector(selectBoard, board =>
   Object.values(board)
 )
+export const selectMoves = createSelector(
+  selectBoard,
+  getSelected,
+  (board, selected) => {
+    const availableMoves = [] as string[]
+    for (let key in board) {
+      if (board[key].figure?.color !== selected?.figure?.color) {
+        availableMoves.push(key)
+      }
+    }
+    return availableMoves
+  }
+)
+
+export const { highlightCells, turnOffHighlight, move, setSelected } =
+  gameSlice.actions
+
+export const startMove =
+  (selected: CellType): AppThunk =>
+  (dispatch, getState) => {
+    const turn = selectTurn(getState())
+    if (selected.figure?.color !== turn) {
+      return
+    }
+    dispatch(setSelected(selected))
+    const availableMoves = selectMoves(getState())
+    dispatch(highlightCells(availableMoves))
+  }
+
+export const endMove =
+  (targetCell: CellType): AppThunk =>
+  (dispatch, getState) => {
+    const selectedCell = getSelected(getState())
+    if (selectedCell) {
+      const selected = selectedCell.x + selectedCell.y
+      const target = targetCell.x + targetCell.y
+      if (targetCell.available) {
+        dispatch(move({ selected, target }))
+      }
+      dispatch(turnOffHighlight())
+    }
+  }
 
 export default gameSlice.reducer
 

@@ -1,6 +1,13 @@
-import { FC, useState } from 'react'
+import { FC, DragEvent } from 'react'
+import { useAppDispatch, useAppSelector } from '../../../../app/hooks'
 import { toCamelCase } from '../../../../utils/toCamelCase'
-import { CellType } from '../../gameSlice'
+import {
+  CellType,
+  endMove,
+  getSelected,
+  startMove,
+  turnOffHighlight,
+} from '../../gameSlice'
 import styles from './Cell.module.css'
 
 type PropsType = {
@@ -9,12 +16,15 @@ type PropsType = {
 }
 
 const Cell: FC<PropsType> = ({ cell, color }) => {
-  const [selected, setSelected] = useState(false)
+  const selected = useAppSelector(getSelected)
+  const dispatch = useAppDispatch()
 
   const classNames = [styles.cell, styles[color]]
 
   if (selected) {
-    classNames.push(styles.selected)
+    if (selected.x === cell.x && selected.y === cell.y) {
+      classNames.push(styles.selected)
+    }
   }
 
   if (cell.available) {
@@ -26,26 +36,31 @@ const Cell: FC<PropsType> = ({ cell, color }) => {
     : ''
   const svgDir = require.context('../../../../assets/')
 
+  const onDragStartHandler = () => {
+    dispatch(startMove(cell))
+  }
+
+  const onDragEndHandler = () => {
+    dispatch(turnOffHighlight())
+  }
+
+  const onDropHandler = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    dispatch(endMove(cell))
+  }
+
   return (
     <div
       className={classNames.join(' ')}
-      onDrop={e => {
-        e.preventDefault()
-        console.log(cell)
-      }}
+      onDrop={onDropHandler}
       onDragOver={e => e.preventDefault()}
     >
       {cell.figure && (
         <img
           src={svgDir(`./${chessPiece}.svg`)}
           alt="Chess piece"
-          onDragStart={() => {
-            console.log(cell)
-            setSelected(true)
-          }}
-          onDragEnd={() => {
-            setSelected(false)
-          }}
+          onDragStart={onDragStartHandler}
+          onDragEnd={onDragEndHandler}
         />
       )}
     </div>

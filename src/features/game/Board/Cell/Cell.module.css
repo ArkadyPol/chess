@@ -14,14 +14,14 @@
   background-color: #fcfcfc;
 }
 
-.selected {
-  background-color: #e9e91b;
-}
-
 .available {
   background-color: #0ed40e;
 }
 
 .threatened {
   background-color: #ff0101;
+}
+
+.selected {
+  background-color: #e9e91b;
 }
