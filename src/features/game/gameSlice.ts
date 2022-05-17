@@ -54,17 +54,116 @@ export const getSelected = (state: RootState) => state.game.selected
 export const selectBoardAsArray = createSelector(selectBoard, board =>
   Object.values(board)
 )
-export const selectMoves = createSelector(
-  selectBoard,
+export const findFigureIndex = createSelector(
+  selectBoardAsArray,
   getSelected,
   (board, selected) => {
+    return board.findIndex(
+      cell => selected?.x === cell.x && selected?.y === cell.y
+    )
+  }
+)
+export const selectMoves = createSelector(
+  selectBoardAsArray,
+  getSelected,
+  findFigureIndex,
+  (board, selected, index) => {
     const availableMoves = [] as string[]
-    for (let key in board) {
-      if (board[key].figure?.color !== selected?.figure?.color) {
-        availableMoves.push(key)
+    const i = Math.floor(index / 8)
+    const j = index % 8
+
+    if (
+      selected?.figure?.type === 'queen' ||
+      selected?.figure?.type === 'rook'
+    ) {
+      for (let y = i + 1; y < 8; y++) {
+        let cell = board[y * 8 + j]
+        availableMoves.push(cell.x + cell.y)
+        if (cell.figure) {
+          break
+        }
+      }
+      for (let y = i - 1; y >= 0; y--) {
+        let cell = board[y * 8 + j]
+        availableMoves.push(cell.x + cell.y)
+        if (cell.figure) {
+          break
+        }
+      }
+      for (let x = j + 1; x < 8; x++) {
+        let cell = board[i * 8 + x]
+        availableMoves.push(cell.x + cell.y)
+        if (cell.figure) {
+          break
+        }
+      }
+      for (let x = j - 1; x >= 0; x--) {
+        let cell = board[i * 8 + x]
+        availableMoves.push(cell.x + cell.y)
+        if (cell.figure) {
+          break
+        }
       }
     }
+
+    if (
+      selected?.figure?.type === 'queen' ||
+      selected?.figure?.type === 'bishop'
+    ) {
+      for (let k = 1; i + k < 8 && j + k < 8; k++) {
+        let cell = board[(i + k) * 8 + j + k]
+        availableMoves.push(cell.x + cell.y)
+        if (cell.figure) {
+          break
+        }
+      }
+      for (let k = 1; i - k >= 0 && j - k >= 0; k++) {
+        let cell = board[(i - k) * 8 + j - k]
+        availableMoves.push(cell.x + cell.y)
+        if (cell.figure) {
+          break
+        }
+      }
+      for (let k = 1; i + k < 8 && j - k >= 0; k++) {
+        let cell = board[(i + k) * 8 + j - k]
+        availableMoves.push(cell.x + cell.y)
+        if (cell.figure) {
+          break
+        }
+      }
+      for (let k = 1; i - k >= 0 && j + k < 8; k++) {
+        let cell = board[(i - k) * 8 + j + k]
+        availableMoves.push(cell.x + cell.y)
+        if (cell.figure) {
+          break
+        }
+      }
+    }
+
+    if (
+      selected?.figure?.type === 'king' ||
+      selected?.figure?.type === 'knight' ||
+      selected?.figure?.type === 'pawn'
+    ) {
+      board.forEach(cell => {
+        if (cell.figure?.color !== selected?.figure?.color) {
+          availableMoves.push(cell.x + cell.y)
+        }
+      })
+    }
+
     return availableMoves
+  }
+)
+
+export const selectFilteredMoves = createSelector(
+  selectBoard,
+  selectMoves,
+  getSelected,
+  (board, moves, selected) => {
+    return moves.filter(
+      coords => board[coords].figure?.color !== selected?.figure?.color
+    )
   }
 )
 
@@ -79,7 +178,7 @@ export const startMove =
       return
     }
     dispatch(setSelected(selected))
-    const availableMoves = selectMoves(getState())
+    const availableMoves = selectFilteredMoves(getState())
     dispatch(highlightCells(availableMoves))
   }
 
