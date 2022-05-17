@@ -1,0 +1,7 @@
+.board {
+  width: calc(64px * 8);
+  height: calc(64px * 8);
+  border: black solid 2px;
+  display: flex;
+  flex-wrap: wrap;
+}
