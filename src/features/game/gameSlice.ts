@@ -140,16 +140,107 @@ export const selectMoves = createSelector(
       }
     }
 
-    if (
-      selected?.figure?.type === 'king' ||
-      selected?.figure?.type === 'knight' ||
-      selected?.figure?.type === 'pawn'
-    ) {
-      board.forEach(cell => {
-        if (cell.figure?.color !== selected?.figure?.color) {
+    if (selected?.figure?.type === 'knight') {
+      if (i - 2 >= 0) {
+        if (j - 1 >= 0) {
+          let cell = board[(i - 2) * 8 + j - 1]
           availableMoves.push(cell.x + cell.y)
         }
-      })
+        if (j + 1 < 8) {
+          let cell = board[(i - 2) * 8 + j + 1]
+          availableMoves.push(cell.x + cell.y)
+        }
+      }
+      if (i - 1 >= 0) {
+        if (j - 2 >= 0) {
+          let cell = board[(i - 1) * 8 + j - 2]
+          availableMoves.push(cell.x + cell.y)
+        }
+        if (j + 2 < 8) {
+          let cell = board[(i - 1) * 8 + j + 2]
+          availableMoves.push(cell.x + cell.y)
+        }
+      }
+      if (i + 1 < 8) {
+        if (j - 2 >= 0) {
+          let cell = board[(i + 1) * 8 + j - 2]
+          availableMoves.push(cell.x + cell.y)
+        }
+        if (j + 2 < 8) {
+          let cell = board[(i + 1) * 8 + j + 2]
+          availableMoves.push(cell.x + cell.y)
+        }
+      }
+      if (i + 2 < 8) {
+        if (j - 1 >= 0) {
+          let cell = board[(i + 2) * 8 + j - 1]
+          availableMoves.push(cell.x + cell.y)
+        }
+        if (j + 1 < 8) {
+          let cell = board[(i + 2) * 8 + j + 1]
+          availableMoves.push(cell.x + cell.y)
+        }
+      }
+    }
+
+    if (selected?.figure?.type === 'pawn') {
+      const dy = selected.figure.color === 'white' ? -1 : 1
+      const firstPosition = selected.figure.color === 'white' ? 6 : 1
+      if (i + dy >= 0 && i + dy < 8) {
+        let cell = board[(i + dy) * 8 + j]
+        if (!cell.figure) {
+          availableMoves.push(cell.x + cell.y)
+          if (i === firstPosition) {
+            let cell = board[(i + dy * 2) * 8 + j]
+            if (!cell.figure) {
+              availableMoves.push(cell.x + cell.y)
+            }
+          }
+        }
+      }
+      let cell = board[(i + dy) * 8 + j - 1]
+      if (cell.figure && cell.figure.color !== selected.figure.color) {
+        availableMoves.push(cell.x + cell.y)
+      }
+      cell = board[(i + dy) * 8 + j + 1]
+      if (cell.figure && cell.figure.color !== selected.figure.color) {
+        availableMoves.push(cell.x + cell.y)
+      }
+    }
+
+    if (selected?.figure?.type === 'king') {
+      if (i - 1 >= 0) {
+        let cell = board[(i - 1) * 8 + j]
+        availableMoves.push(cell.x + cell.y)
+        if (j - 1 >= 0) {
+          let cell = board[(i - 1) * 8 + j - 1]
+          availableMoves.push(cell.x + cell.y)
+        }
+        if (j + 1 < 8) {
+          let cell = board[(i - 1) * 8 + j + 1]
+          availableMoves.push(cell.x + cell.y)
+        }
+      }
+      if (i + 1 < 8) {
+        let cell = board[(i + 1) * 8 + j]
+        availableMoves.push(cell.x + cell.y)
+        if (j - 1 >= 0) {
+          let cell = board[(i + 1) * 8 + j - 1]
+          availableMoves.push(cell.x + cell.y)
+        }
+        if (j + 1 < 8) {
+          let cell = board[(i + 1) * 8 + j + 1]
+          availableMoves.push(cell.x + cell.y)
+        }
+      }
+      if (j - 1 >= 0) {
+        let cell = board[i * 8 + j - 1]
+        availableMoves.push(cell.x + cell.y)
+      }
+      if (j + 1 < 8) {
+        let cell = board[i * 8 + j + 1]
+        availableMoves.push(cell.x + cell.y)
+      }
     }
 
     return availableMoves
