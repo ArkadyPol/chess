@@ -1,0 +1,12 @@
+.timer {
+  margin: 10px;
+}
+.restart {
+  display: flex;
+  padding: 5px;
+  justify-content: center;
+}
+
+.restartBtn {
+  font-size: 20px;
+}

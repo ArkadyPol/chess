@@ -1,6 +1,6 @@
 import { FC, DragEvent } from 'react'
-import { useAppDispatch, useAppSelector } from '../../../../app/hooks'
-import { toCamelCase } from '../../../../utils/toCamelCase'
+import { useAppDispatch, useAppSelector } from 'app/hooks'
+import { toCamelCase } from 'utils/toCamelCase'
 import {
   CellType,
   endMove,
@@ -34,7 +34,7 @@ const Cell: FC<PropsType> = ({ cell, color }) => {
   const chessPiece = cell.figure
     ? toCamelCase(cell.figure.type, cell.figure.color)
     : ''
-  const svgDir = require.context('../../../../assets/')
+  const svgDir = require.context('assets/')
 
   const onDragStartHandler = () => {
     dispatch(startMove(cell))

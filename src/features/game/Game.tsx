@@ -1,10 +1,12 @@
 import Board from './Board/Board'
+import Timer from './Timer/Timer'
 
 const Game = () => {
   return (
-    <div>
+    <>
+      <Timer />
       <Board />
-    </div>
+    </>
   )
 }
 

@@ -5,7 +5,7 @@ import {
   XCoordType,
 } from '../features/game/gameSlice'
 
-const xCoords: XCoordType[] = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
+export const xCoords: XCoordType[] = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
 const pieces: PieceType[] = [
   'rook',
   'knight',

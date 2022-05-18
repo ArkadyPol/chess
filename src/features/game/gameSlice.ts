@@ -1,12 +1,16 @@
 import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { AppThunk, RootState } from '../../app/store'
-import { canMove } from '../../utils/canMove'
-import { createBoard } from '../../utils/createBoard'
+import { AppThunk, RootState } from 'app/store'
+import { canMove } from 'utils/canMove'
+import { createBoard } from 'utils/createBoard'
 
 const initialState = {
   board: createBoard(),
   selected: null as null | CellType,
   turn: 'white' as 'white' | 'black',
+  lostBlackFigures: [] as ChessPiece[],
+  lostWhiteFigures: [] as ChessPiece[],
+  blackTime: 300,
+  whiteTime: 300,
 }
 
 export const gameSlice = createSlice({
@@ -35,6 +39,17 @@ export const gameSlice = createSlice({
       const { selected, target } = action.payload
       const { figure } = state.board[selected]
       state.board[selected].figure = null
+      const targetFigure = state.board[target].figure
+      if (targetFigure) {
+        switch (targetFigure.color) {
+          case 'white':
+            state.lostWhiteFigures.push(targetFigure)
+            break
+          case 'black':
+            state.lostBlackFigures.push(targetFigure)
+            break
+        }
+      }
       state.board[target].figure = figure
       switch (state.turn) {
         case 'white':
@@ -45,6 +60,16 @@ export const gameSlice = createSlice({
           break
       }
       state.selected = null
+    },
+    decrementTimer(state) {
+      switch (state.turn) {
+        case 'white':
+          state.whiteTime--
+          break
+        case 'black':
+          state.blackTime--
+          break
+      }
     },
   },
 })
@@ -74,8 +99,14 @@ export const selectMoves = createSelector(
   }
 )
 
-export const { highlightCells, turnOffHighlight, move, setSelected } =
-  gameSlice.actions
+export const {
+  highlightCells,
+  turnOffHighlight,
+  move,
+  setSelected,
+  reset,
+  decrementTimer,
+} = gameSlice.actions
 
 export const startMove =
   (selected: CellType): AppThunk =>
