@@ -1,5 +1,6 @@
 import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { AppThunk, RootState } from '../../app/store'
+import { canMove } from '../../utils/canMove'
 import { createBoard } from '../../utils/createBoard'
 
 const initialState = {
@@ -66,195 +67,10 @@ export const findFigureIndex = createSelector(
 export const selectMoves = createSelector(
   selectBoardAsArray,
   getSelected,
-  findFigureIndex,
-  (board, selected, index) => {
-    const availableMoves = [] as string[]
-    const i = Math.floor(index / 8)
-    const j = index % 8
-
-    if (
-      selected?.figure?.type === 'queen' ||
-      selected?.figure?.type === 'rook'
-    ) {
-      for (let y = i + 1; y < 8; y++) {
-        let cell = board[y * 8 + j]
-        availableMoves.push(cell.x + cell.y)
-        if (cell.figure) {
-          break
-        }
-      }
-      for (let y = i - 1; y >= 0; y--) {
-        let cell = board[y * 8 + j]
-        availableMoves.push(cell.x + cell.y)
-        if (cell.figure) {
-          break
-        }
-      }
-      for (let x = j + 1; x < 8; x++) {
-        let cell = board[i * 8 + x]
-        availableMoves.push(cell.x + cell.y)
-        if (cell.figure) {
-          break
-        }
-      }
-      for (let x = j - 1; x >= 0; x--) {
-        let cell = board[i * 8 + x]
-        availableMoves.push(cell.x + cell.y)
-        if (cell.figure) {
-          break
-        }
-      }
-    }
-
-    if (
-      selected?.figure?.type === 'queen' ||
-      selected?.figure?.type === 'bishop'
-    ) {
-      for (let k = 1; i + k < 8 && j + k < 8; k++) {
-        let cell = board[(i + k) * 8 + j + k]
-        availableMoves.push(cell.x + cell.y)
-        if (cell.figure) {
-          break
-        }
-      }
-      for (let k = 1; i - k >= 0 && j - k >= 0; k++) {
-        let cell = board[(i - k) * 8 + j - k]
-        availableMoves.push(cell.x + cell.y)
-        if (cell.figure) {
-          break
-        }
-      }
-      for (let k = 1; i + k < 8 && j - k >= 0; k++) {
-        let cell = board[(i + k) * 8 + j - k]
-        availableMoves.push(cell.x + cell.y)
-        if (cell.figure) {
-          break
-        }
-      }
-      for (let k = 1; i - k >= 0 && j + k < 8; k++) {
-        let cell = board[(i - k) * 8 + j + k]
-        availableMoves.push(cell.x + cell.y)
-        if (cell.figure) {
-          break
-        }
-      }
-    }
-
-    if (selected?.figure?.type === 'knight') {
-      if (i - 2 >= 0) {
-        if (j - 1 >= 0) {
-          let cell = board[(i - 2) * 8 + j - 1]
-          availableMoves.push(cell.x + cell.y)
-        }
-        if (j + 1 < 8) {
-          let cell = board[(i - 2) * 8 + j + 1]
-          availableMoves.push(cell.x + cell.y)
-        }
-      }
-      if (i - 1 >= 0) {
-        if (j - 2 >= 0) {
-          let cell = board[(i - 1) * 8 + j - 2]
-          availableMoves.push(cell.x + cell.y)
-        }
-        if (j + 2 < 8) {
-          let cell = board[(i - 1) * 8 + j + 2]
-          availableMoves.push(cell.x + cell.y)
-        }
-      }
-      if (i + 1 < 8) {
-        if (j - 2 >= 0) {
-          let cell = board[(i + 1) * 8 + j - 2]
-          availableMoves.push(cell.x + cell.y)
-        }
-        if (j + 2 < 8) {
-          let cell = board[(i + 1) * 8 + j + 2]
-          availableMoves.push(cell.x + cell.y)
-        }
-      }
-      if (i + 2 < 8) {
-        if (j - 1 >= 0) {
-          let cell = board[(i + 2) * 8 + j - 1]
-          availableMoves.push(cell.x + cell.y)
-        }
-        if (j + 1 < 8) {
-          let cell = board[(i + 2) * 8 + j + 1]
-          availableMoves.push(cell.x + cell.y)
-        }
-      }
-    }
-
-    if (selected?.figure?.type === 'pawn') {
-      const dy = selected.figure.color === 'white' ? -1 : 1
-      const firstPosition = selected.figure.color === 'white' ? 6 : 1
-      if (i + dy >= 0 && i + dy < 8) {
-        let cell = board[(i + dy) * 8 + j]
-        if (!cell.figure) {
-          availableMoves.push(cell.x + cell.y)
-          if (i === firstPosition) {
-            let cell = board[(i + dy * 2) * 8 + j]
-            if (!cell.figure) {
-              availableMoves.push(cell.x + cell.y)
-            }
-          }
-        }
-      }
-      let cell = board[(i + dy) * 8 + j - 1]
-      if (cell.figure && cell.figure.color !== selected.figure.color) {
-        availableMoves.push(cell.x + cell.y)
-      }
-      cell = board[(i + dy) * 8 + j + 1]
-      if (cell.figure && cell.figure.color !== selected.figure.color) {
-        availableMoves.push(cell.x + cell.y)
-      }
-    }
-
-    if (selected?.figure?.type === 'king') {
-      if (i - 1 >= 0) {
-        let cell = board[(i - 1) * 8 + j]
-        availableMoves.push(cell.x + cell.y)
-        if (j - 1 >= 0) {
-          let cell = board[(i - 1) * 8 + j - 1]
-          availableMoves.push(cell.x + cell.y)
-        }
-        if (j + 1 < 8) {
-          let cell = board[(i - 1) * 8 + j + 1]
-          availableMoves.push(cell.x + cell.y)
-        }
-      }
-      if (i + 1 < 8) {
-        let cell = board[(i + 1) * 8 + j]
-        availableMoves.push(cell.x + cell.y)
-        if (j - 1 >= 0) {
-          let cell = board[(i + 1) * 8 + j - 1]
-          availableMoves.push(cell.x + cell.y)
-        }
-        if (j + 1 < 8) {
-          let cell = board[(i + 1) * 8 + j + 1]
-          availableMoves.push(cell.x + cell.y)
-        }
-      }
-      if (j - 1 >= 0) {
-        let cell = board[i * 8 + j - 1]
-        availableMoves.push(cell.x + cell.y)
-      }
-      if (j + 1 < 8) {
-        let cell = board[i * 8 + j + 1]
-        availableMoves.push(cell.x + cell.y)
-      }
-    }
-
-    return availableMoves
-  }
-)
-
-export const selectFilteredMoves = createSelector(
-  selectBoard,
-  selectMoves,
-  getSelected,
-  (board, moves, selected) => {
-    return moves.filter(
-      coords => board[coords].figure?.color !== selected?.figure?.color
-    )
+  (board, selected) => {
+    return board
+      .filter(target => canMove(target, selected, board))
+      .map(cell => cell.x + cell.y)
   }
 )
 
@@ -269,7 +85,7 @@ export const startMove =
       return
     }
     dispatch(setSelected(selected))
-    const availableMoves = selectFilteredMoves(getState())
+    const availableMoves = selectMoves(getState())
     dispatch(highlightCells(availableMoves))
   }
 

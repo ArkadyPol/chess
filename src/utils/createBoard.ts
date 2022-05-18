@@ -45,3 +45,8 @@ export const createBoard = (): BoardType => {
 
   return board
 }
+
+export const translateCoords = (coords: { x: XCoordType; y: number }) => ({
+  x: xCoords.indexOf(coords.x),
+  y: 8 - coords.y,
+})
