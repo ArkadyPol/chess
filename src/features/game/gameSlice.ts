@@ -10,6 +10,7 @@ import { createBoard } from 'utils/createBoard'
 import { getOppositeColor } from 'utils/getOppositeColor'
 import { filterChecks } from 'utils/filterChecks'
 import { sleep } from 'utils/sleep'
+import { getRandomElement } from 'utils/randomInt'
 
 const initialState = {
   board: createBoard(),
@@ -228,13 +229,23 @@ export const highlightMoves = (): AppThunk => async (dispatch, getState) => {
     dispatch(setSelected(figures[i]))
     const availableMoves = selectMoves(getState(), figures[i], true)
     if (availableMoves.length) {
-      console.log(availableMoves)
       dispatch(highlightCells(availableMoves))
       await sleep(250)
       dispatch(turnOffHighlight())
     }
     dispatch(setSelected(null))
   }
+}
+
+export const randomMove = (): AppThunk => async (dispatch, getState) => {
+  const color = selectTurn(getState())
+  const allMoves = selectAllMovesByColor(getState(), color, true)
+  const move = getRandomElement(allMoves)
+  let board = selectBoard(getState())
+  const [source, target] = move.split('-')
+  dispatch(startMove(board[source]))
+  board = selectBoard(getState())
+  dispatch(endMove(board[target]))
 }
 
 export default gameSlice.reducer

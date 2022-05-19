@@ -1,6 +1,11 @@
 import { useAppDispatch, useAppSelector } from 'app/hooks'
 import { useEffect } from 'react'
-import { decrementTimer, highlightMoves, restart } from '../gameSlice'
+import {
+  decrementTimer,
+  highlightMoves,
+  randomMove,
+  restart,
+} from '../gameSlice'
 import styles from './Timer.module.css'
 
 const Timer = () => {
@@ -23,20 +28,18 @@ const Timer = () => {
 
   return (
     <div className={styles.timer}>
-      <div className={styles.restart}>
-        <button
-          className={styles.restartBtn}
-          onClick={() => dispatch(restart())}
-        >
+      <div className={styles.buttonsArea}>
+        <button className={styles.btn} onClick={() => dispatch(restart())}>
           Restart game
         </button>
-      </div>
-      <div className={styles.restart}>
         <button
-          className={styles.restartBtn}
+          className={styles.btn}
           onClick={() => dispatch(highlightMoves())}
         >
           Highlight all possible moves
+        </button>
+        <button className={styles.btn} onClick={() => dispatch(randomMove())}>
+          Random move
         </button>
       </div>
       <h2>Black - {blackTime} sec</h2>
