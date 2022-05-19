@@ -66,10 +66,10 @@ const checkDiagonal = (
 
 export const canMove = (
   target: CellType,
-  selected: CellType | null,
+  selected: CellType,
   board: CellType[]
 ): boolean => {
-  if (!selected?.figure) {
+  if (!selected.figure) {
     return false
   }
   if (target.figure?.color === selected.figure.color) {

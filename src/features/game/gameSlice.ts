@@ -2,22 +2,25 @@ import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { AppThunk, RootState } from 'app/store'
 import { canMove } from 'utils/canMove'
 import { createBoard } from 'utils/createBoard'
+import { getOppositeColor } from 'utils/getOppositeColor'
+import { filterChecks } from 'utils/filterChecks'
 
 const initialState = {
   board: createBoard(),
   selected: null as null | CellType,
-  turn: 'white' as 'white' | 'black',
+  turn: 'white' as ColorType,
   lostBlackFigures: [] as ChessPiece[],
   lostWhiteFigures: [] as ChessPiece[],
   blackTime: 300,
   whiteTime: 300,
+  winner: null as ColorType | null,
 }
 
 export const gameSlice = createSlice({
   name: 'counter',
   initialState: initialState,
   reducers: {
-    reset: () => initialState,
+    restart: () => initialState,
     highlightCells: (state, action: PayloadAction<string[]>) => {
       action.payload.forEach(coords => {
         state.board[coords].available = true
@@ -53,23 +56,33 @@ export const gameSlice = createSlice({
       state.board[target].figure = figure
       switch (state.turn) {
         case 'white':
-          state.turn = 'black'
+          state.whiteTime += 5
           break
         case 'black':
-          state.turn = 'white'
+          state.blackTime += 5
           break
       }
+      state.turn = getOppositeColor(state.turn)
       state.selected = null
     },
     decrementTimer(state) {
       switch (state.turn) {
         case 'white':
           state.whiteTime--
+          if (state.whiteTime === 0) {
+            state.winner = 'black'
+          }
           break
         case 'black':
           state.blackTime--
+          if (state.blackTime === 0) {
+            state.winner = 'white'
+          }
           break
       }
+    },
+    setWinner(state, action: PayloadAction<ColorType>) {
+      state.winner = action.payload
     },
   },
 })
@@ -77,25 +90,71 @@ export const gameSlice = createSlice({
 export const selectBoard = (state: RootState) => state.game.board
 export const selectTurn = (state: RootState) => state.game.turn
 export const getSelected = (state: RootState) => state.game.selected
+export const selectWinner = (state: RootState) => state.game.winner
 export const selectBoardAsArray = createSelector(selectBoard, board =>
   Object.values(board)
 )
-export const findFigureIndex = createSelector(
+export const findOppositeKing = createSelector(
   selectBoardAsArray,
-  getSelected,
-  (board, selected) => {
-    return board.findIndex(
-      cell => selected?.x === cell.x && selected?.y === cell.y
-    )
+  (_state: RootState, color: ColorType) => color,
+  (board, color) => {
+    let oppositeColor = getOppositeColor(color)
+    const cell = board.filter(
+      cell =>
+        cell.figure?.color === oppositeColor && cell.figure.type === 'king'
+    )[0]
+    return cell.x + cell.y
   }
 )
 export const selectMoves = createSelector(
+  (state: RootState) => state,
   selectBoardAsArray,
-  getSelected,
-  (board, selected) => {
-    return board
-      .filter(target => canMove(target, selected, board))
-      .map(cell => cell.x + cell.y)
+  (_state: RootState, selected: CellType) => selected,
+  (_state: RootState, _selected: CellType, detailed: boolean) => detailed,
+  (state, board, selected, detailed) => {
+    const moves = board.filter(target => canMove(target, selected, board))
+
+    if (detailed) {
+      return moves
+        .filter(target => filterChecks(selected, target, state))
+        .map(cell => cell.x + cell.y)
+    }
+
+    return moves.map(cell => cell.x + cell.y)
+  }
+)
+
+export const selectFiguresByColor = createSelector(
+  selectBoardAsArray,
+  (_state: RootState, color: ColorType) => color,
+  (board, color) => {
+    return board.filter(cell => cell.figure?.color === color)
+  }
+)
+
+type Move = `${string}-${string}`
+
+export const selectAllMovesByColor = createSelector(
+  (state: RootState) => state,
+  selectFiguresByColor,
+  (_state: RootState, _color: ColorType, detailed: boolean) => detailed,
+  (state, board, detailed) => {
+    const allMoves = [] as Move[]
+    board.forEach(cell => {
+      const moves = selectMoves(state, cell, detailed)
+      moves.forEach(m => {
+        allMoves.push(`${cell.x + cell.y}-${m}`)
+      })
+    })
+    return allMoves
+  }
+)
+
+export const selectCheckMovesByColor = createSelector(
+  selectAllMovesByColor,
+  findOppositeKing,
+  (movies, king) => {
+    return movies.filter(m => m.split('-')[1] === king)
   }
 )
 
@@ -104,8 +163,9 @@ export const {
   turnOffHighlight,
   move,
   setSelected,
-  reset,
+  restart,
   decrementTimer,
+  setWinner,
 } = gameSlice.actions
 
 export const startMove =
@@ -115,8 +175,12 @@ export const startMove =
     if (selected.figure?.color !== turn) {
       return
     }
+    const winner = selectWinner(getState())
+    if (winner) {
+      return
+    }
     dispatch(setSelected(selected))
-    const availableMoves = selectMoves(getState())
+    const availableMoves = selectMoves(getState(), selected, true)
     dispatch(highlightCells(availableMoves))
   }
 
@@ -129,6 +193,11 @@ export const endMove =
       const target = targetCell.x + targetCell.y
       if (targetCell.available) {
         dispatch(move({ selected, target }))
+      }
+      const oppositeColor = getOppositeColor(selectedCell.figure!.color)
+      const allMoves = selectAllMovesByColor(getState(), oppositeColor, true)
+      if (allMoves.length === 0) {
+        dispatch(setWinner(selectedCell.figure!.color))
       }
       dispatch(turnOffHighlight())
     }
@@ -145,9 +214,10 @@ export type CellType = {
   available: boolean
 }
 export type ChessPiece = {
-  color: 'white' | 'black'
+  color: ColorType
   type: PieceType
 }
 export type BoardType = {
   [coords: string]: CellType
 }
+export type ColorType = 'white' | 'black'

@@ -1,19 +1,25 @@
 import { useAppDispatch, useAppSelector } from 'app/hooks'
 import { useEffect } from 'react'
-import { decrementTimer, reset } from '../gameSlice'
+import { decrementTimer, restart } from '../gameSlice'
 import styles from './Timer.module.css'
 
 const Timer = () => {
   const blackTime = useAppSelector(state => state.game.blackTime)
   const whiteTime = useAppSelector(state => state.game.whiteTime)
+  const winner = useAppSelector(state => state.game.winner)
   const dispatch = useAppDispatch()
 
   useEffect(() => {
-    const timer = setInterval(() => dispatch(decrementTimer()), 1000)
-    return () => {
-      clearInterval(timer)
+    let timer: ReturnType<typeof setInterval> | null
+    if (!winner) {
+      timer = setInterval(() => dispatch(decrementTimer()), 1000)
     }
-  }, [dispatch])
+    return () => {
+      if (timer) {
+        clearInterval(timer)
+      }
+    }
+  }, [dispatch, winner])
 
   return (
     <div className={styles.timer}>
@@ -21,7 +27,7 @@ const Timer = () => {
         <button
           className={styles.restartBtn}
           onClick={() => {
-            dispatch(reset())
+            dispatch(restart())
           }}
         >
           Restart game

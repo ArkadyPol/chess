@@ -3,6 +3,7 @@ import { useAppDispatch, useAppSelector } from 'app/hooks'
 import { toCamelCase } from 'utils/toCamelCase'
 import {
   CellType,
+  ColorType,
   endMove,
   getSelected,
   startMove,
@@ -12,7 +13,7 @@ import styles from './Cell.module.css'
 
 type PropsType = {
   cell: CellType
-  color: 'white' | 'black'
+  color: ColorType
 }
 
 const Cell: FC<PropsType> = ({ cell, color }) => {
