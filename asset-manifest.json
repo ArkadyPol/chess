@@ -1,0 +1,27 @@
+{
+  "files": {
+    "main.css": "/chess/static/css/main.d2e37b3a.css",
+    "main.js": "/chess/static/js/main.fce8df05.js",
+    "static/js/787.497f1025.chunk.js": "/chess/static/js/787.497f1025.chunk.js",
+    "static/media/BlackRook.svg": "/chess/static/media/BlackRook.11b82bbd54650e60c086.svg",
+    "static/media/BlackKnight.svg": "/chess/static/media/BlackKnight.7930be9e07b51bc0e069.svg",
+    "static/media/BlackKing.svg": "/chess/static/media/BlackKing.5b14c13b083205b43351.svg",
+    "static/media/BlackQueen.svg": "/chess/static/media/BlackQueen.310fe3e250ab4485dee4.svg",
+    "static/media/WhiteKing.svg": "/chess/static/media/WhiteKing.a1e6563df9c1125460ef.svg",
+    "static/media/WhiteKnight.svg": "/chess/static/media/WhiteKnight.d47944d2cee4f8c707d1.svg",
+    "static/media/WhiteBishop.svg": "/chess/static/media/WhiteBishop.cf781aa194cfdc1a617a.svg",
+    "static/media/BlackBishop.svg": "/chess/static/media/BlackBishop.04932f63ef10dcdee115.svg",
+    "static/media/WhiteRook.svg": "/chess/static/media/WhiteRook.9e48b84f189eea24339f.svg",
+    "static/media/WhiteQueen.svg": "/chess/static/media/WhiteQueen.e195644e78392b8215dd.svg",
+    "static/media/BlackPawn.svg": "/chess/static/media/BlackPawn.65485e342f98c53d4789.svg",
+    "static/media/WhitePawn.svg": "/chess/static/media/WhitePawn.7fbab4ab8e18494ec243.svg",
+    "index.html": "/chess/index.html",
+    "main.d2e37b3a.css.map": "/chess/static/css/main.d2e37b3a.css.map",
+    "main.fce8df05.js.map": "/chess/static/js/main.fce8df05.js.map",
+    "787.497f1025.chunk.js.map": "/chess/static/js/787.497f1025.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.d2e37b3a.css",
+    "static/js/main.fce8df05.js"
+  ]
+}
