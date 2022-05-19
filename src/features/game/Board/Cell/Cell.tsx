@@ -4,6 +4,7 @@ import { toCamelCase } from 'utils/toCamelCase'
 import {
   CellType,
   ColorType,
+  defineCurrentPlayer,
   endMove,
   getSelected,
   startMove,
@@ -18,6 +19,7 @@ type PropsType = {
 
 const Cell: FC<PropsType> = ({ cell, color }) => {
   const selected = useAppSelector(getSelected)
+  const isCurrentPlayerBot = useAppSelector(defineCurrentPlayer)
   const dispatch = useAppDispatch()
 
   const classNames = [styles.cell, styles[color]]
@@ -62,6 +64,7 @@ const Cell: FC<PropsType> = ({ cell, color }) => {
           alt="Chess piece"
           onDragStart={onDragStartHandler}
           onDragEnd={onDragEndHandler}
+          draggable={!isCurrentPlayerBot}
         />
       )}
     </div>

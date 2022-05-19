@@ -2,13 +2,17 @@ import { useAppSelector } from 'app/hooks'
 import Board from './Board/Board'
 import EngGame from './EngGame/EngGame'
 import { selectWinner } from './gameSlice'
+import Settings from './Settings/Settings'
 import Timer from './Timer/Timer'
 
 const Game = () => {
   const winner = useAppSelector(selectWinner)
   return (
     <>
-      <Timer />
+      <div>
+        <Settings />
+        <Timer />
+      </div>
       <Board />
       {winner && <EngGame />}
     </>
