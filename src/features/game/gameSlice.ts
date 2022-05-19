@@ -63,6 +63,21 @@ export const gameSlice = createSlice({
             break
         }
       }
+      if (figure?.type === 'pawn') {
+        switch (figure.color) {
+          case 'black':
+            if (state.board[target].y === 1) {
+              figure.type = 'queen'
+            }
+            break
+          case 'white':
+            if (state.board[target].y === 8) {
+              figure.type = 'queen'
+            }
+            break
+        }
+      }
+
       state.board[target].figure = figure
       switch (state.turn) {
         case 'white':
