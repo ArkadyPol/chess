@@ -20,8 +20,6 @@ const initialState = {
   highlightId: null as null | string,
   selected: null as null | CellType,
   turn: 'white' as ColorType,
-  lostBlackFigures: [] as ChessPiece[],
-  lostWhiteFigures: [] as ChessPiece[],
   blackTime: 300,
   whiteTime: 300,
   winner: null as ColorType | null,
@@ -61,14 +59,6 @@ export const gameSlice = createSlice({
       const targetFigure = state.board[target].figure
       if (targetFigure) {
         record.captured = { ...targetFigure }
-        switch (targetFigure.color) {
-          case 'white':
-            state.lostWhiteFigures.push(targetFigure)
-            break
-          case 'black':
-            state.lostBlackFigures.push(targetFigure)
-            break
-        }
       }
       if (figure?.type === 'pawn') {
         switch (figure.color) {

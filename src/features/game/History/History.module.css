@@ -1,8 +1,8 @@
 .history {
-  height: calc(100vh - 50px);
-  padding: 25px;
+  height: calc(100vh - 40px);
+  padding: 20px;
   width: 220px;
-  margin-left: 30px;
+  margin-left: 50px;
   background-color: lightgray;
   display: flex;
   align-content: flex-start;
