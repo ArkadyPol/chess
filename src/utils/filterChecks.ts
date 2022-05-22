@@ -11,9 +11,7 @@ export const filterChecks = (
   targetCell: CellType,
   state: RootState
 ) => {
-  const oppositeColor: 'white' | 'black' = getOppositeColor(
-    selected.figure!.color
-  )
+  const oppositeColor = getOppositeColor(selected.figure!.color)
   const source = selected.x + selected.y
   const target = targetCell.x + targetCell.y
   const board = selectBoard(state)

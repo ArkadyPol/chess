@@ -9,14 +9,3 @@
   flex-wrap: wrap;
   overflow-y: auto;
 }
-
-.record {
-  display: flex;
-  width: 90px;
-  cursor: pointer;
-  padding: 5px;
-}
-
-.record:hover {
-  background-color: #e6e928;
-}

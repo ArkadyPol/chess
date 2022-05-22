@@ -1,0 +1,14 @@
+.record {
+  display: flex;
+  width: 90px;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.active {
+  background-color: #a8d3e6;
+}
+
+.record:hover {
+  background-color: #e6e928;
+}

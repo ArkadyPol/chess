@@ -15,6 +15,7 @@ import { getRandomElement } from 'utils/randomInt'
 const initialState = {
   board: createBoard(),
   history: [] as RecordMove[],
+  currentStep: 0,
   players: {
     white: 'player' as PlayerType,
     black: 'player' as PlayerType,
@@ -77,9 +78,40 @@ export const gameSlice = createSlice({
       }
       state.board[target].figure = figure
       state.timers[state.currentPlayer] += 5
+      state.history.length = state.currentStep
       state.history.push(record)
       state.currentPlayer = getOppositeColor(state.currentPlayer)
+      state.currentStep++
       state.selected = null
+    },
+    reverseMove(state, action: PayloadAction<RecordMove>) {
+      const [source, target] = action.payload.move.split('-')
+      state.board[source].figure = action.payload.source
+      state.board[target].figure = action.payload.captured
+      state.currentPlayer = action.payload.source.color
+      state.currentStep--
+    },
+    moveForward(state, action: PayloadAction<RecordMove>) {
+      const [source, target] = action.payload.move.split('-')
+      let figure = action.payload.source
+      if (figure.type === 'pawn') {
+        switch (figure.color) {
+          case 'black':
+            if (state.board[target].y === 1) {
+              figure = { ...figure, type: 'queen' }
+            }
+            break
+          case 'white':
+            if (state.board[target].y === 8) {
+              figure = { ...figure, type: 'queen' }
+            }
+            break
+        }
+      }
+      state.board[target].figure = figure
+      state.board[source].figure = null
+      state.currentPlayer = getOppositeColor(action.payload.source.color)
+      state.currentStep++
     },
     decrementTimer(state) {
       state.timers[state.currentPlayer]--
@@ -114,6 +146,7 @@ export const selectHighlightId = (state: RootState) => state.game.highlightId
 export const selectBlackPlayer = (state: RootState) => state.game.players.black
 export const selectWhitePlayer = (state: RootState) => state.game.players.white
 export const selectHistory = (state: RootState) => state.game.history
+export const selectCurrentStep = (state: RootState) => state.game.currentStep
 export const selectBoardAsArray = createSelector(selectBoard, board =>
   Object.values(board)
 )
@@ -187,8 +220,8 @@ export const selectAllMovesByColor = createSelector(
 export const selectCheckMovesByColor = createSelector(
   selectAllMovesByColor,
   findOppositeKing,
-  (movies, king) => {
-    return movies.filter(m => m.split('-')[1] === king)
+  (moves, king) => {
+    return moves.filter(m => m.split('-')[1] === king)
   }
 )
 
@@ -202,6 +235,8 @@ export const {
   setWinner,
   setHighlightId,
   setPlayer,
+  reverseMove,
+  moveForward,
 } = gameSlice.actions
 
 export const startMove =
@@ -260,7 +295,7 @@ export const highlightMoves = (): AppThunk => async (dispatch, getState) => {
   }
 }
 
-export const randomMove = (): AppThunk => async (dispatch, getState) => {
+export const randomMove = (): AppThunk => (dispatch, getState) => {
   const color = selectCurrentPlayer(getState())
   const allMoves = selectAllMovesByColor(getState(), color, true)
   const move = getRandomElement(allMoves)
@@ -270,6 +305,22 @@ export const randomMove = (): AppThunk => async (dispatch, getState) => {
   board = selectBoard(getState())
   dispatch(endMove(board[target]))
 }
+
+export const historyTravel =
+  (step: number): AppThunk =>
+  (dispatch, getState) => {
+    const history = selectHistory(getState())
+    const currentStep = selectCurrentStep(getState())
+    if (currentStep > step) {
+      for (let i = currentStep - 1; i >= step; i--) {
+        dispatch(reverseMove(history[i]))
+      }
+    } else if (currentStep < step) {
+      for (let i = currentStep; i < step; i++) {
+        dispatch(moveForward(history[i]))
+      }
+    }
+  }
 
 export default gameSlice.reducer
 
