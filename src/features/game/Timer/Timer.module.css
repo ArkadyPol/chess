@@ -1,15 +1,3 @@
 .timer {
   margin: 10px;
 }
-.buttonsArea {
-  display: flex;
-  flex-direction: column;
-  padding: 5px;
-  justify-content: center;
-  gap: 10px;
-}
-
-.btn {
-  font-size: 20px;
-  cursor: pointer;
-}

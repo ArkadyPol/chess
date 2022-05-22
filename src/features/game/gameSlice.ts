@@ -322,6 +322,15 @@ export const historyTravel =
     }
   }
 
+export const showLastMove = (): AppThunk => async (dispatch, getState) => {
+  const history = selectHistory(getState())
+  const lastMove = history[history.length - 1]
+  dispatch(reverseMove(lastMove))
+  setTimeout(() => {
+    dispatch(moveForward(lastMove))
+  }, 300)
+}
+
 export default gameSlice.reducer
 
 type Move = `${string}-${string}`

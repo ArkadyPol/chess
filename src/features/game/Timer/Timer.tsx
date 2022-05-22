@@ -3,11 +3,10 @@ import { useEffect } from 'react'
 import {
   decrementTimer,
   defineCurrentPlayer,
-  highlightMoves,
   randomMove,
-  restart,
   selectWinner,
 } from '../gameSlice'
+import ButtonsMenu from './ButtonsMenu/ButtonsMenu'
 import styles from './Timer.module.css'
 
 const Timer = () => {
@@ -15,6 +14,7 @@ const Timer = () => {
   const whiteTime = useAppSelector(state => state.game.timers.white)
   const winner = useAppSelector(selectWinner)
   const isCurrentPlayerBot = useAppSelector(defineCurrentPlayer)
+
   const dispatch = useAppDispatch()
 
   useEffect(() => {
@@ -36,25 +36,7 @@ const Timer = () => {
 
   return (
     <div className={styles.timer}>
-      <div className={styles.buttonsArea}>
-        <button className={styles.btn} onClick={() => dispatch(restart())}>
-          Restart game
-        </button>
-        <button
-          className={styles.btn}
-          disabled={!!winner || isCurrentPlayerBot}
-          onClick={() => dispatch(highlightMoves())}
-        >
-          Highlight all possible moves
-        </button>
-        <button
-          className={styles.btn}
-          disabled={!!winner || isCurrentPlayerBot}
-          onClick={() => dispatch(randomMove())}
-        >
-          Random move
-        </button>
-      </div>
+      <ButtonsMenu />
       <h2>Black - {blackTime} sec</h2>
       <h2>White - {whiteTime} sec</h2>
     </div>
