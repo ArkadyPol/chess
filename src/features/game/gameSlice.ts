@@ -14,6 +14,7 @@ import { getRandomElement } from 'utils/randomInt'
 
 const initialState = {
   board: createBoard(),
+  history: [] as RecordMove[],
   blackPlayer: 'player' as PlayerType,
   whitePlayer: 'player' as PlayerType,
   highlightId: null as null | string,
@@ -51,9 +52,15 @@ export const gameSlice = createSlice({
     ) => {
       const { selected, target } = action.payload
       const { figure } = state.board[selected]
+      const record: RecordMove = {
+        source: { ...figure! },
+        move: `${selected}-${target}`,
+        captured: null,
+      }
       state.board[selected].figure = null
       const targetFigure = state.board[target].figure
       if (targetFigure) {
+        record.captured = { ...targetFigure }
         switch (targetFigure.color) {
           case 'white':
             state.lostWhiteFigures.push(targetFigure)
@@ -87,6 +94,7 @@ export const gameSlice = createSlice({
           state.blackTime += 5
           break
       }
+      state.history.push(record)
       state.turn = getOppositeColor(state.turn)
       state.selected = null
     },
@@ -135,6 +143,7 @@ export const selectWinner = (state: RootState) => state.game.winner
 export const selectHighlightId = (state: RootState) => state.game.highlightId
 export const selectBlackPlayer = (state: RootState) => state.game.blackPlayer
 export const selectWhitePlayer = (state: RootState) => state.game.whitePlayer
+export const selectHistory = (state: RootState) => state.game.history
 export const selectBoardAsArray = createSelector(selectBoard, board =>
   Object.values(board)
 )
@@ -312,3 +321,8 @@ export type BoardType = {
 }
 export type ColorType = 'white' | 'black'
 export type PlayerType = 'player' | 'bot'
+export type RecordMove = {
+  source: ChessPiece
+  move: Move
+  captured: ChessPiece | null
+}

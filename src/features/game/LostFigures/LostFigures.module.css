@@ -1,7 +1,8 @@
 .lost {
-  height: calc(50vh - 60px);
-  padding: 30px;
-  margin-left: 50px;
+  height: calc(50vh - 50px);
+  width: 100px;
+  padding: 25px;
+  margin-left: 40px;
   background-color: lightgray;
 }
 

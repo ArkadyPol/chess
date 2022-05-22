@@ -1,0 +1,22 @@
+.history {
+  height: calc(100vh - 50px);
+  padding: 25px;
+  width: 220px;
+  margin-left: 30px;
+  background-color: lightgray;
+  display: flex;
+  align-content: flex-start;
+  flex-wrap: wrap;
+  overflow-y: auto;
+}
+
+.record {
+  display: flex;
+  width: 90px;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.record:hover {
+  background-color: #e6e928;
+}

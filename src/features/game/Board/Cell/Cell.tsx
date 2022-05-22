@@ -1,6 +1,5 @@
 import { FC, DragEvent } from 'react'
 import { useAppDispatch, useAppSelector } from 'app/hooks'
-import { toCamelCase } from 'utils/toCamelCase'
 import {
   CellType,
   ColorType,
@@ -11,6 +10,7 @@ import {
   turnOffHighlight,
 } from '../../gameSlice'
 import styles from './Cell.module.css'
+import ChessIcon from 'components/ChessIcon/ChessIcon'
 
 type PropsType = {
   cell: CellType
@@ -34,11 +34,6 @@ const Cell: FC<PropsType> = ({ cell, color }) => {
     classNames.push(cell.figure ? styles.threatened : styles.available)
   }
 
-  const chessPiece = cell.figure
-    ? toCamelCase(cell.figure.type, cell.figure.color)
-    : ''
-  const svgDir = require.context('assets/')
-
   const onDragStartHandler = () => {
     dispatch(startMove(cell))
   }
@@ -59,9 +54,8 @@ const Cell: FC<PropsType> = ({ cell, color }) => {
       onDragOver={e => e.preventDefault()}
     >
       {cell.figure && (
-        <img
-          src={svgDir(`./${chessPiece}.svg`)}
-          alt="Chess piece"
+        <ChessIcon
+          figure={cell.figure}
           onDragStart={onDragStartHandler}
           onDragEnd={onDragEndHandler}
           draggable={!isCurrentPlayerBot}
