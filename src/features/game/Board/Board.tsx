@@ -1,16 +1,16 @@
 import { xCoords } from 'utils/createBoard'
 import { useAppSelector } from '../../../app/hooks'
-import { selectBoardAsArray, selectTurn } from '../gameSlice'
+import { selectBoardAsArray, selectCurrentPlayer } from '../gameSlice'
 import styles from './Board.module.css'
 import Cell from './Cell/Cell'
 
 const Board = () => {
   const board = useAppSelector(selectBoardAsArray)
-  const turn = useAppSelector(selectTurn)
+  const currentPlayer = useAppSelector(selectCurrentPlayer)
   return (
     <>
       <div>
-        <h3>Current player is {turn}</h3>
+        <h3>Current player is {currentPlayer}</h3>
         <div className={styles.board}>
           {board.map((cell, i) => (
             <Cell

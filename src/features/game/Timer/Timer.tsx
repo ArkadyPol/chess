@@ -11,8 +11,8 @@ import {
 import styles from './Timer.module.css'
 
 const Timer = () => {
-  const blackTime = useAppSelector(state => state.game.blackTime)
-  const whiteTime = useAppSelector(state => state.game.whiteTime)
+  const blackTime = useAppSelector(state => state.game.timers.black)
+  const whiteTime = useAppSelector(state => state.game.timers.white)
   const winner = useAppSelector(selectWinner)
   const isCurrentPlayerBot = useAppSelector(defineCurrentPlayer)
   const dispatch = useAppDispatch()

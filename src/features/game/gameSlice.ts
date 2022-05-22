@@ -15,13 +15,14 @@ import { getRandomElement } from 'utils/randomInt'
 const initialState = {
   board: createBoard(),
   history: [] as RecordMove[],
-  blackPlayer: 'player' as PlayerType,
-  whitePlayer: 'player' as PlayerType,
+  players: {
+    white: 'player' as PlayerType,
+    black: 'player' as PlayerType,
+  },
   highlightId: null as null | string,
   selected: null as null | CellType,
-  turn: 'white' as ColorType,
-  blackTime: 300,
-  whiteTime: 300,
+  currentPlayer: 'white' as ColorType,
+  timers: { black: 300, white: 300 },
   winner: null as ColorType | null,
 }
 
@@ -74,34 +75,19 @@ export const gameSlice = createSlice({
             break
         }
       }
-
       state.board[target].figure = figure
-      switch (state.turn) {
-        case 'white':
-          state.whiteTime += 5
-          break
-        case 'black':
-          state.blackTime += 5
-          break
-      }
+      state.timers[state.currentPlayer] += 5
       state.history.push(record)
-      state.turn = getOppositeColor(state.turn)
+      state.currentPlayer = getOppositeColor(state.currentPlayer)
       state.selected = null
     },
     decrementTimer(state) {
-      switch (state.turn) {
-        case 'white':
-          state.whiteTime--
-          if (state.whiteTime === 0) {
-            state.winner = 'black'
-          }
-          break
-        case 'black':
-          state.blackTime--
-          if (state.blackTime === 0) {
-            state.winner = 'white'
-          }
-          break
+      state.timers[state.currentPlayer]--
+      if (state.timers.black === 0) {
+        state.winner = 'white'
+      }
+      if (state.timers.white === 0) {
+        state.winner = 'black'
       }
     },
     setWinner(state, action: PayloadAction<ColorType>) {
@@ -114,25 +100,19 @@ export const gameSlice = createSlice({
       state,
       action: PayloadAction<{ color: ColorType; value: PlayerType }>
     ) {
-      switch (action.payload.color) {
-        case 'black':
-          state.blackPlayer = action.payload.value
-          break
-        case 'white':
-          state.whitePlayer = action.payload.value
-          break
-      }
+      state.players[action.payload.color] = action.payload.value
     },
   },
 })
 
 export const selectBoard = (state: RootState) => state.game.board
-export const selectTurn = (state: RootState) => state.game.turn
+export const selectCurrentPlayer = (state: RootState) =>
+  state.game.currentPlayer
 export const getSelected = (state: RootState) => state.game.selected
 export const selectWinner = (state: RootState) => state.game.winner
 export const selectHighlightId = (state: RootState) => state.game.highlightId
-export const selectBlackPlayer = (state: RootState) => state.game.blackPlayer
-export const selectWhitePlayer = (state: RootState) => state.game.whitePlayer
+export const selectBlackPlayer = (state: RootState) => state.game.players.black
+export const selectWhitePlayer = (state: RootState) => state.game.players.white
 export const selectHistory = (state: RootState) => state.game.history
 export const selectBoardAsArray = createSelector(selectBoard, board =>
   Object.values(board)
@@ -152,12 +132,12 @@ export const findOppositeKing = createSelector(
 export const defineCurrentPlayer = createSelector(
   selectBlackPlayer,
   selectWhitePlayer,
-  selectTurn,
-  (blackPlayer, whitePlayer, turn) => {
-    if (turn === 'white' && whitePlayer === 'bot') {
+  selectCurrentPlayer,
+  (blackPlayer, whitePlayer, color) => {
+    if (color === 'white' && whitePlayer === 'bot') {
       return true
     }
-    if (turn === 'black' && blackPlayer === 'bot') {
+    if (color === 'black' && blackPlayer === 'bot') {
       return true
     }
     return false
@@ -228,8 +208,8 @@ export const startMove =
   (selected: CellType): AppThunk =>
   (dispatch, getState) => {
     dispatch(setHighlightId(null))
-    const turn = selectTurn(getState())
-    if (selected.figure?.color !== turn) {
+    const color = selectCurrentPlayer(getState())
+    if (selected.figure?.color !== color) {
       return
     }
     const winner = selectWinner(getState())
@@ -261,7 +241,7 @@ export const endMove =
   }
 
 export const highlightMoves = (): AppThunk => async (dispatch, getState) => {
-  const color = selectTurn(getState())
+  const color = selectCurrentPlayer(getState())
   const figures = selectFiguresByColor(getState(), color)
   const id = nanoid()
   dispatch(setHighlightId(id))
@@ -281,7 +261,7 @@ export const highlightMoves = (): AppThunk => async (dispatch, getState) => {
 }
 
 export const randomMove = (): AppThunk => async (dispatch, getState) => {
-  const color = selectTurn(getState())
+  const color = selectCurrentPlayer(getState())
   const allMoves = selectAllMovesByColor(getState(), color, true)
   const move = getRandomElement(allMoves)
   let board = selectBoard(getState())
