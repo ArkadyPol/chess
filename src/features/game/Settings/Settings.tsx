@@ -3,6 +3,7 @@ import { ChangeEvent } from 'react'
 import {
   PlayerType,
   selectBlackPlayer,
+  selectHistoryMode,
   selectWhitePlayer,
   setPlayer,
 } from '../gameSlice'
@@ -11,6 +12,7 @@ import styles from './Settings.module.css'
 const Settings = () => {
   const blackPlayer = useAppSelector(selectBlackPlayer)
   const whitePlayer = useAppSelector(selectWhitePlayer)
+  const historyMode = useAppSelector(selectHistoryMode)
   const dispatch = useAppDispatch()
 
   const onChangeBlackPlayer = (e: ChangeEvent<HTMLInputElement>) => {
@@ -46,6 +48,7 @@ const Settings = () => {
             value="bot"
             checked={blackPlayer === 'bot'}
             onChange={onChangeBlackPlayer}
+            disabled={historyMode}
           />{' '}
           bot
         </label>
@@ -69,6 +72,7 @@ const Settings = () => {
             value="bot"
             checked={whitePlayer === 'bot'}
             onChange={onChangeWhitePlayer}
+            disabled={historyMode}
           />{' '}
           bot
         </label>

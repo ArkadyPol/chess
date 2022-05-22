@@ -15,6 +15,7 @@ import { getRandomElement } from 'utils/randomInt'
 const initialState = {
   board: createBoard(),
   history: [] as RecordMove[],
+  historyMode: false,
   currentStep: 0,
   players: {
     white: 'player' as PlayerType,
@@ -134,6 +135,9 @@ export const gameSlice = createSlice({
     ) {
       state.players[action.payload.color] = action.payload.value
     },
+    setHistoryMode(state, action: PayloadAction<boolean>) {
+      state.historyMode = action.payload
+    },
   },
 })
 
@@ -147,6 +151,7 @@ export const selectBlackPlayer = (state: RootState) => state.game.players.black
 export const selectWhitePlayer = (state: RootState) => state.game.players.white
 export const selectHistory = (state: RootState) => state.game.history
 export const selectCurrentStep = (state: RootState) => state.game.currentStep
+export const selectHistoryMode = (state: RootState) => state.game.historyMode
 export const selectBoardAsArray = createSelector(selectBoard, board =>
   Object.values(board)
 )
@@ -237,6 +242,7 @@ export const {
   setPlayer,
   reverseMove,
   moveForward,
+  setHistoryMode,
 } = gameSlice.actions
 
 export const startMove =
@@ -329,6 +335,17 @@ export const showLastMove = (): AppThunk => async (dispatch, getState) => {
   setTimeout(() => {
     dispatch(moveForward(lastMove))
   }, 300)
+}
+
+export const showHistory = (): AppThunk => async (dispatch, getState) => {
+  dispatch(setHistoryMode(true))
+  dispatch(historyTravel(0))
+  const history = selectHistory(getState())
+  for (let i = 0; i < history.length; i++) {
+    await sleep(300)
+    dispatch(moveForward(history[i]))
+  }
+  dispatch(setHistoryMode(false))
 }
 
 export default gameSlice.reducer

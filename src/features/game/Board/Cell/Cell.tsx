@@ -6,6 +6,7 @@ import {
   defineCurrentPlayer,
   endMove,
   getSelected,
+  selectHistoryMode,
   startMove,
   turnOffHighlight,
 } from '../../gameSlice'
@@ -20,6 +21,7 @@ type PropsType = {
 const Cell: FC<PropsType> = ({ cell, color }) => {
   const selected = useAppSelector(getSelected)
   const isCurrentPlayerBot = useAppSelector(defineCurrentPlayer)
+  const historyMode = useAppSelector(selectHistoryMode)
   const dispatch = useAppDispatch()
 
   const classNames = [styles.cell, styles[color]]
@@ -58,7 +60,7 @@ const Cell: FC<PropsType> = ({ cell, color }) => {
           figure={cell.figure}
           onDragStart={onDragStartHandler}
           onDragEnd={onDragEndHandler}
-          draggable={!isCurrentPlayerBot}
+          draggable={!isCurrentPlayerBot && !historyMode}
         />
       )}
     </div>
